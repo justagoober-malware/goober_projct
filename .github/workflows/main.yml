@@ -1,0 +1,25 @@
+name: Project GooberBreacher v1 Factory
+on: [push]
+
+jobs:
+  build-the-squad:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout the Goober Source
+        uses: actions/checkout@v4
+
+      - name: Compile the Goober Squad
+        # Compiling the Breacher (The Hammer), Scout (The Eyes), and Cloner (The Spreader)
+        run: |
+          cl.exe /EHsc /std:c++17 goober_breacher.cpp /Fe:goober_breacher.exe
+          cl.exe /EHsc /std:c++17 goober_scout.cpp /Fe:goober_scout.exe
+          cl.exe /EHsc /std:c++17 goober_cloner.cpp /Fe:goober_cloner.exe
+
+      - name: Package the Goober Toolkit
+        uses: actions/upload-artifact@v4
+        with:
+          name: Goober-v1-Full-Suite
+          path: |
+            goober_breacher.exe
+            goober_scout.exe
+            goober_cloner.exe
