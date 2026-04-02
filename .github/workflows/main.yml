@@ -8,8 +8,11 @@ jobs:
       - name: Checkout the Goober Source
         uses: actions/checkout@v4
 
+      # THIS IS THE MISSING PIECE! 
+      - name: Set up MSVC Developer Command Prompt
+        uses: ilammy/msvc-dev-cmd@v1
+
       - name: Compile the Goober Squad
-        # Compiling the Breacher (The Hammer), Scout (The Eyes), and Cloner (The Spreader)
         run: |
           cl.exe /EHsc /std:c++17 goober_breacher.cpp /Fe:goober_breacher.exe
           cl.exe /EHsc /std:c++17 goober_scout.cpp /Fe:goober_scout.exe
@@ -19,7 +22,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: Goober-v1-Full-Suite
-          path: |
-            goober_breacher.exe
-            goober_scout.exe
-            goober_cloner.exe
+          path: "*.exe"
