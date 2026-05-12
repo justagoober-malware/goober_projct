@@ -1,0 +1,26 @@
+name: Build Goobers
+
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+
+    - name: Compile Goobers
+      run: |
+        g++ goobers.cpp -o goobers.exe -static
+      # The -static flag ensures the .exe includes necessary libraries 
+      # so it runs on other Windows machines without errors.
+
+    - name: Upload Goobers EXE
+      uses: actions/upload-artifact@v4
+      with:
+        name: goobers-binary
+        path: goobers.exe
