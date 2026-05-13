@@ -15,9 +15,9 @@ jobs:
 
     - name: Compile Goobers
       run: |
-        g++ goobers.cpp -o goobers.exe -static
-      # The -static flag ensures the .exe includes necessary libraries 
-      # so it runs on other Windows machines without errors.
+        g++ -std=c++17 goobers.cpp -o goobers.exe -static
+      # Added -std=c++17 to ensure std::filesystem is recognized.
+      # The -static flag bundles dependencies so the EXE runs standalone.
 
     - name: Upload Goobers EXE
       uses: actions/upload-artifact@v4
